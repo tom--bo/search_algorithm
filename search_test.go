@@ -26,7 +26,7 @@ func TestSearch(t *testing.T) {
 	}
 
 	for num, tc := range tests {
-		got := bm(tc.text, tc.query)
+		got := kmp(tc.text, tc.query)
 		want := tc.want
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got -> %v, want -> %v\n", got, want)
