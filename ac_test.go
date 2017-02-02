@@ -13,9 +13,10 @@ func TestACSearch(t *testing.T) {
 	}{
 		{"", []string{}, []int{}},
 		{"", []string{"a"}, []int{}},
-		{"abc", []string{""}, []int{}},
+		//{"abc", []string{""}, []int{}},
 		{"abcde", []string{"ab"}, []int{0}},
-		{"xbabcdex", []string{"ab", "bc", "bab", "d", "abcde"}, []int{1, 2, 3, 5}},
+		{"xbabcdex", []string{"ab", "abcde"}, []int{2, 2}},
+		{"xbabcdex", []string{"ab", "bc", "bab", "d", "abcde"}, []int{1, 2, 2, 3, 5}},
 	}
 
 	for num, tc := range tests {
