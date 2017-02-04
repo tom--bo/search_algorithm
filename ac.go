@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"github.com/k0kubun/pp"
+	"sort"
 )
 
 type Set map[string]bool
@@ -31,15 +30,8 @@ func ac(text string, query []string) []int {
 		for !ok && now != 0 {
 			now = Goto[now].Failure
 			next, ok = Goto[now].Link[ch]
-			fmt.Println("!ok", next, ok)
-			if Goto[now].HasOutput {
-				for _, v := range makeRet(i, Goto[now].Output) {
-					ret = append(ret, v)
-				}
-			}
 		}
 		now = next
-		fmt.Println(now, string(ch))
 
 		if Goto[now].HasOutput {
 			for _, v := range makeRet(i, Goto[now].Output) {
@@ -47,10 +39,8 @@ func ac(text string, query []string) []int {
 			}
 		}
 	}
-	for _, v := range Goto {
-		pp.Print(v)
-	}
 
+	sort.Ints(ret)
 	return ret
 }
 
@@ -86,6 +76,7 @@ func buildFailure(query []string, Goto []Node) {
 			if Goto[tgt].HasOutput {
 				for o, _ := range Goto[tgt].Output {
 					Goto[pos].Output[o] = true
+					Goto[pos].HasOutput = true
 				}
 			}
 		}
@@ -98,6 +89,7 @@ func buildFailure(query []string, Goto []Node) {
 				if Goto[tgt].HasOutput {
 					for o, _ := range Goto[tgt].Output {
 						Goto[pos].Output[o] = true
+						Goto[pos].HasOutput = true
 					}
 				}
 			}
@@ -108,6 +100,7 @@ func buildFailure(query []string, Goto []Node) {
 				Goto[pos].Failure = tgt
 				for o, _ := range Goto[tgt].Output {
 					Goto[pos].Output[o] = true
+					Goto[pos].HasOutput = true
 				}
 			}
 		}
