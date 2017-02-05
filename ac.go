@@ -54,11 +54,12 @@ func buildMachine(query []string) []Node {
 func buildFailure(query []string, Goto []Node) {
 	queue := []int{}
 	for _, n := range Goto[0].Link {
-		Goto[n].Failure = 0
 		for _, m := range Goto[n].Link {
 			queue = append(queue, m)
 		}
 	}
+	// Set -1 for the first node's Failure as sentinel
+	Goto[0].Failure = -1
 
 	for len(queue) != 0 {
 		pos := queue[0]
@@ -70,22 +71,14 @@ func buildFailure(query []string, Goto []Node) {
 		fromLink := Goto[pos].FromLink
 		before := Goto[pos].BeforeNode
 		fbefore := Goto[before].Failure
+		c := 0
 
-		if tgt, ok := Goto[fbefore].Link[fromLink]; ok {
-			Goto[pos].Failure = tgt
-			if Goto[tgt].HasOutput {
-				for o, _ := range Goto[tgt].Output {
-					Goto[pos].Output[o] = true
-					Goto[pos].HasOutput = true
-				}
-			}
-		}
-		// fix later
-		// 2回目以降は Goto[pos].Failure = tgt これはだめ
-		// fbeforeが0になってから1度だけ実行したい...
-		for fbefore != 0 {
+		for fbefore >= 0 {
 			if tgt, ok := Goto[fbefore].Link[fromLink]; ok {
-				Goto[pos].Failure = tgt
+				if c == 0 { // only when first target
+					Goto[pos].Failure = tgt
+				}
+				c++
 				if Goto[tgt].HasOutput {
 					for o, _ := range Goto[tgt].Output {
 						Goto[pos].Output[o] = true
@@ -94,15 +87,6 @@ func buildFailure(query []string, Goto []Node) {
 				}
 			}
 			fbefore = Goto[fbefore].Failure
-		}
-		if tgt, ok := Goto[fbefore].Link[fromLink]; ok {
-			if Goto[tgt].HasOutput {
-				Goto[pos].Failure = tgt
-				for o, _ := range Goto[tgt].Output {
-					Goto[pos].Output[o] = true
-					Goto[pos].HasOutput = true
-				}
-			}
 		}
 	}
 }
