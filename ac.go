@@ -14,7 +14,34 @@ type Node struct {
 	Failure    int
 }
 
-func ac(text string, query []string) []int {
+func ac(text string, query []string) int {
+	qLen := len(query)
+	tLen := len(text)
+	if qLen == 0 || tLen == 0 {
+		return -1
+	}
+
+	Goto := buildMachine(query)
+
+	now := 0
+	for i, ch := range text {
+		next, ok := Goto[now].Link[ch]
+		for !ok && now != 0 {
+			now = Goto[now].Failure
+			next, ok = Goto[now].Link[ch]
+		}
+		now = next
+
+		if Goto[now].HasOutput {
+			ret := makeRet(i, Goto[now].Output)
+            return ret[0]
+		}
+	}
+
+	return -1
+}
+
+func acAll(text string, query []string) []int {
 	ret := []int{}
 	qLen := len(query)
 	tLen := len(text)
@@ -129,6 +156,7 @@ func makeRet(now int, Output Set) []int {
 	for k, _ := range Output {
 		ret = append(ret, now-len(k)+1)
 	}
+    sort.Ints(ret)
 	return ret
 }
 

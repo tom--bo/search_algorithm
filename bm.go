@@ -2,7 +2,35 @@ package main
 
 import ()
 
-func bm(text, query string) []int {
+func bm(text, query string) int {
+	qLen := len(query)
+	tLen := len(text)
+	if qLen == 0 || tLen == 0 || tLen < qLen {
+		return -1
+	}
+	pos := qLen - 1
+
+	m := preProcess(query)
+
+	for pos < tLen {
+		if text[pos] == query[qLen-1] {
+			k := pos
+			j := qLen - 1
+			for j > 0 && text[k] == query[j] {
+				k -= 1
+				j -= 1
+			}
+			if j == 0 {
+				return pos-qLen+1
+			}
+		}
+		pos = pos + skip(m, text[pos], qLen)
+	}
+
+	return -1
+}
+
+func bmAll(text, query string) []int {
 	ret := []int{}
 	qLen := len(query)
 	tLen := len(text)
