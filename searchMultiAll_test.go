@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestACSearch(t *testing.T) {
+func TestSearchMultiAll(t *testing.T) {
 	var tests = []struct {
 		text  string
 		query []string
@@ -23,7 +23,7 @@ func TestACSearch(t *testing.T) {
 	}
 
 	for num, tc := range tests {
-		got := ac(tc.text, tc.query)
+		got := acAll(tc.text, tc.query)
 		want := tc.want
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got -> %v, want -> %v\n", got, want)
