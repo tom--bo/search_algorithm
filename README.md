@@ -3,5 +3,6 @@
 - simpleSearch
 - KMP
 - BM
+- AC
 
 
