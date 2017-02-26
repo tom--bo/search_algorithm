@@ -10,21 +10,29 @@ func bm(text, query string) int {
 	}
 	pos := qLen - 1
 
-	m := preProcess(query)
+	m := make(map[uint8]int)
+
+	for i := 0; i < qLen-1; i++ {
+		m[query[i]] = qLen - i - 1
+	}
+	m[query[qLen-1]] = qLen
 
 	for pos < tLen {
-		if text[pos] == query[qLen-1] {
-			k := pos
-			j := qLen - 1
-			for j > 0 && text[k] == query[j] {
-				k -= 1
-				j -= 1
-			}
-			if j == 0 {
-				return pos-qLen+1
-			}
+		k := pos
+		j := qLen - 1
+		for j >= 0 && text[k] == query[j] {
+			k -= 1
+			j -= 1
 		}
-		pos = pos + skip(m, text[pos], qLen)
+		if j == -1 {
+			return pos - qLen + 1
+		}
+		p, ok := m[text[pos]]
+		if ok {
+			pos = pos + p
+		} else {
+			pos += qLen
+		}
 	}
 
 	return -1
@@ -39,44 +47,32 @@ func bmAll(text, query string) []int {
 	}
 	pos := qLen - 1
 
-	m := preProcess(query)
-
-	for pos < tLen {
-		if text[pos] == query[qLen-1] {
-			k := pos
-			j := qLen - 1
-			for j > 0 && text[k] == query[j] {
-				k -= 1
-				j -= 1
-			}
-			if j == 0 {
-				ret = append(ret, pos-qLen+1)
-				pos++
-				continue
-			}
-		}
-		pos = pos + skip(m, text[pos], qLen)
-	}
-
-	return ret
-}
-
-func preProcess(query string) map[uint8]int {
 	m := make(map[uint8]int)
-	qLen := len(query)
 
 	for i := 0; i < qLen-1; i++ {
 		m[query[i]] = qLen - i - 1
 	}
 	m[query[qLen-1]] = qLen
 
-	return m
-}
-
-func skip(m map[uint8]int, ch uint8, qLen int) int {
-	pos, ok := m[ch]
-	if ok {
-		return pos
+	for pos < tLen {
+		k := pos
+		j := qLen - 1
+		for j >= 0 && text[k] == query[j] {
+			k -= 1
+			j -= 1
+		}
+		if j == -1 {
+			ret = append(ret, pos-qLen+1)
+			pos++
+			continue
+		}
+		p, ok := m[text[pos]]
+		if ok {
+			pos = pos + p
+		} else {
+			pos += qLen
+		}
 	}
-	return qLen
+
+	return ret
 }
