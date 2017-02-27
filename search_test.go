@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var tests = []struct {
+var testCases = []struct {
 	text, query string
 	want        int
 }{
@@ -25,35 +25,56 @@ var tests = []struct {
 	{"grep  searches the named input FILEs for lines containing a match to the given PATTERN.  If no files are specified, or if the", "are", 101},
 }
 
-func TestSimpleSearch(t *testing.T) {
-	for num, tc := range tests {
-		got := simpleSearch(tc.text, tc.query)
+var testCasesForMultiInput = []struct {
+	text  string
+	query []string
+	want  int
+}{
+	{"", []string{}, -1},
+	{"", []string{"a"}, -1},
+	{"abc", []string{"", ""}, -1},
+	{"abcde", []string{"ab"}, 0},
+	{"xbabcdex", []string{"ab", "abcde"}, 2},
+	{"xbabcdex", []string{"x", "ab", "abcde"}, 0},
+	{"xbabcdex", []string{"ab", "bc", "bab", "d", "abcde"}, 1},
+	{"aaaa", []string{"a", "b"}, 0},
+	{"which finally halts.  at that point", []string{"at that"}, 22},
+}
+
+func test(t *testing.T, f func(string, string) int) {
+	for num, tc := range testCases {
+		got := f(tc.text, tc.query)
 		want := tc.want
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got -> %v, want -> %v\n", got, want)
 			t.Fatal("Failed at case:", num)
 		}
 	}
+}
+
+func testForMultiImput(t *testing.T, f func(string, []string) int) {
+	for num, tc := range testCasesForMultiInput {
+		got := f(tc.text, tc.query)
+		want := tc.want
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got -> %v, want -> %v\n", got, want)
+			t.Fatal("Failed at case:", num)
+		}
+	}
+}
+
+func TestSimpleSearch(t *testing.T) {
+	test(t, simpleSearch)
 }
 
 func TestKMPSearch(t *testing.T) {
-	for num, tc := range tests {
-		got := kmp(tc.text, tc.query)
-		want := tc.want
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got -> %v, want -> %v\n", got, want)
-			t.Fatal("Failed at case:", num)
-		}
-	}
+	test(t, kmp)
 }
 
 func TestBMSearch(t *testing.T) {
-	for num, tc := range tests {
-		got := bm(tc.text, tc.query)
-		want := tc.want
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got -> %v, want -> %v\n", got, want)
-			t.Fatal("Failed at case:", num)
-		}
-	}
+	test(t, bm)
+}
+
+func TestAC(t *testing.T) {
+	testForMultiImput(t, ac)
 }
