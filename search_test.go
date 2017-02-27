@@ -7,41 +7,52 @@ import (
 
 var testCases = []struct {
 	text, query string
-	want        int
+	want        []int
 }{
-	{"", "", -1},
-	{"", "a", -1},
-	{"abc", "", -1},
-	{"abcde", "ab", 0},
-	{"aaaaa", "aa", 0},
-	{"abcde\nabcd", "ab", 0},
-	{"abcde", "ac", -1},
-	{"abcde", "a", 0},
-	{"abcabeabcabeababcabe", "abcabe", 0},
-	{"abcababcabeababcabe", "abcabe", 5},
-	{"テスト", "テ", 0},
-	{"漢字な感じ", "感じ", 9},
-	{"which finally halts.  at that point", "at that", 22},
-	{"grep  searches the named input FILEs for lines containing a match to the given PATTERN.  If no files are specified, or if the", "are", 101},
+	{"", "", []int{-1}},
+	{"", "a", []int{-1}},
+	{"abc", "", []int{-1}},
+	{"abcde", "ab", []int{0}},
+	{"aaaaa", "aa", []int{0, 1, 2, 3}},
+	{"abcde\nabcd", "ab", []int{0, 6}},
+	{"abcde", "ac", []int{-1}},
+	{"abcde", "a", []int{0}},
+	{"abcabeabcabeababcabe", "abcabe", []int{0, 6, 14}},
+	{"abcababcabeababcabe", "abcabe", []int{5, 13}},
+	{"テスト", "テ", []int{0}},
+	{"漢字な感じ", "感じ", []int{9}},
+	{"which finally halts.  at that point", "at that", []int{22}},
+	{"grep  searches the named input FILEs for lines containing a match to the given PATTERN.  If no files are specified, or if the", "are", []int{101}},
 }
 
 var testCasesForMultiInput = []struct {
 	text  string
 	query []string
-	want  int
+	want  []int
 }{
-	{"", []string{}, -1},
-	{"", []string{"a"}, -1},
-	{"abc", []string{"", ""}, -1},
-	{"abcde", []string{"ab"}, 0},
-	{"xbabcdex", []string{"ab", "abcde"}, 2},
-	{"xbabcdex", []string{"x", "ab", "abcde"}, 0},
-	{"xbabcdex", []string{"ab", "bc", "bab", "d", "abcde"}, 1},
-	{"aaaa", []string{"a", "b"}, 0},
-	{"which finally halts.  at that point", []string{"at that"}, 22},
+	{"", []string{}, []int{-1}},
+	{"", []string{"a"}, []int{-1}},
+	{"abc", []string{"", ""}, []int{-1}},
+	{"abcde", []string{"ab"}, []int{0}},
+	{"xbabcdex", []string{"ab", "abcde"}, []int{2, 2}},
+	{"xbabcdex", []string{"x", "ab", "abcde"}, []int{0, 2, 2, 7}},
+	{"xbabcdex", []string{"ab", "bc", "bab", "d", "abcde"}, []int{1, 2, 2, 3, 5}},
+	{"aaaa", []string{"a", "b"}, []int{0, 1, 2, 3}},
+	{"which finally halts.  at that point", []string{"at that"}, []int{22}},
 }
 
 func test(t *testing.T, f func(string, string) int) {
+	for num, tc := range testCases {
+		got := f(tc.text, tc.query)
+		want := tc.want[0]
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got -> %v, want -> %v\n", got, want)
+			t.Fatal("Failed at case:", num)
+		}
+	}
+}
+
+func testAllMatchedPatterns(t *testing.T, f func(string, string) []int) {
 	for num, tc := range testCases {
 		got := f(tc.text, tc.query)
 		want := tc.want
@@ -53,6 +64,17 @@ func test(t *testing.T, f func(string, string) int) {
 }
 
 func testForMultiImput(t *testing.T, f func(string, []string) int) {
+	for num, tc := range testCasesForMultiInput {
+		got := f(tc.text, tc.query)
+		want := tc.want[0]
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got -> %v, want -> %v\n", got, want)
+			t.Fatal("Failed at case:", num)
+		}
+	}
+}
+
+func testAllMatchedPatternsForMultiImput(t *testing.T, f func(string, []string) []int) {
 	for num, tc := range testCasesForMultiInput {
 		got := f(tc.text, tc.query)
 		want := tc.want
@@ -77,4 +99,20 @@ func TestBMSearch(t *testing.T) {
 
 func TestAC(t *testing.T) {
 	testForMultiImput(t, ac)
+}
+
+func TestSimpleSearchAll(t *testing.T) {
+	testAllMatchedPatterns(t, simpleSearchAll)
+}
+
+func TestKMPAll(t *testing.T) {
+	testAllMatchedPatterns(t, kmpAll)
+}
+
+func TestBMAll(t *testing.T) {
+	testAllMatchedPatterns(t, bmAll)
+}
+
+func TestACAll(t *testing.T) {
+	testAllMatchedPatternsForMultiImput(t, acAll)
 }
