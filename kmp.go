@@ -16,9 +16,9 @@ func kmp(text, query string) int {
 			j = next[j]
 		}
 		if j == qLen-1 {
-            return i-qLen+1
+			return i - qLen + 1
 		}
-        j++
+		j++
 	}
 
 	return -1
@@ -29,7 +29,7 @@ func kmpAll(text, query string) []int {
 	tLen := len(text)
 	qLen := len(query)
 	if qLen == 0 || tLen == 0 || tLen < qLen {
-		return []int{}
+		return []int{-1}
 	}
 	next := makeNextIndex(query)
 	j := -1
@@ -46,6 +46,9 @@ func kmpAll(text, query string) []int {
 		j++
 	}
 
+	if len(ret) == 0 {
+		ret = append(ret, -1)
+	}
 	return ret
 }
 

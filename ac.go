@@ -34,7 +34,7 @@ func ac(text string, query []string) int {
 
 		if Goto[now].HasOutput {
 			ret := makeRet(i, Goto[now].Output)
-            return ret[0]
+			return ret[0]
 		}
 	}
 
@@ -46,7 +46,7 @@ func acAll(text string, query []string) []int {
 	qLen := len(query)
 	tLen := len(text)
 	if qLen == 0 || tLen == 0 {
-		return []int{}
+		return []int{-1}
 	}
 
 	Goto := buildMachine(query)
@@ -68,6 +68,9 @@ func acAll(text string, query []string) []int {
 	}
 
 	sort.Ints(ret)
+	if len(ret) == 0 {
+		ret = append(ret, -1)
+	}
 	return ret
 }
 
@@ -156,7 +159,7 @@ func makeRet(now int, Output Set) []int {
 	for k, _ := range Output {
 		ret = append(ret, now-len(k)+1)
 	}
-    sort.Ints(ret)
+	sort.Ints(ret)
 	return ret
 }
 

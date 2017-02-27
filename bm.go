@@ -43,7 +43,7 @@ func bmAll(text, query string) []int {
 	qLen := len(query)
 	tLen := len(text)
 	if qLen == 0 || tLen == 0 || tLen < qLen {
-		return []int{}
+		return []int{-1}
 	}
 	pos := qLen - 1
 
@@ -74,5 +74,8 @@ func bmAll(text, query string) []int {
 		}
 	}
 
+	if len(ret) == 0 {
+		ret = append(ret, -1)
+	}
 	return ret
 }
